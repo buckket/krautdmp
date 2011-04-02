@@ -121,6 +121,9 @@ sub parseInput {
 		if($ARGV =~ /http:\/\/krautchan\.net\/(.*)\/thread-(.*)\.html/g) {
 			return [$1, $2];
 		}
+		elsif($ARGV =~ /http:\/\/krautchan\.net\/board\/(.*)\/thread\/(.*)/g) {
+			return [$1, $2];
+		}
 		else { &throwError('Gibbe valid URL') }
 	}
 	else  {&throwError('Gibbe argument') }
