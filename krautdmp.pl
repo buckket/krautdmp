@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use Getopt::Long;
 use LWP::UserAgent;
 
 use threads;
@@ -15,6 +16,12 @@ use constant VERBOSE => 1;
 # by MrLoom
 # 03/27/2011
 
+
+my $optVerbose;
+my $optThreads;
+my $optQuick;
+my $optHelp;
+&parseOptions();
 
 my ($board, $threadid) = @{&parseInput(@ARGV)};
 my $threadurl = "http://krautchan.net/${board}/thread-${threadid}.html";
@@ -44,12 +51,16 @@ if ($response->code == 200) {
 			&pushQueue(["http://krautchan.net/thumbnails/$1", "${dir}thumbnails/$1"]);
 		}
 	}
-	
-	&beVerbose("[+] Adding images to queue...\n");
-	while ($content =~ m/<a href="\/files\/(\d*\..*)" target="_blank">/g) {
-		if(! -e "$dir/files/$1") {
-			&pushQueue(["http://krautchan.net/files/$1", "${dir}files/$1"]);
+	if(!$optQuick) {
+		&beVerbose("[+] Adding images to queue...\n");
+		while ($content =~ m/<a href="\/files\/(\d*\..*)" target="_blank">/g) {
+			if(! -e "$dir/files/$1") {
+				&pushQueue(["http://krautchan.net/files/$1", "${dir}files/$1"]);
+			}
 		}
+	}
+	else {
+		&beVerbose("[+] Skipping images...\n");
 	}
 	
 	#FILTER, FILTER TILL WE DIE!!
@@ -75,8 +86,8 @@ if ($response->code == 200) {
 	close INDEX;
 	
 	&beVerbose("[+] ". scalar @queue . " files to get...\n");
-	&beVerbose("[+] Spawning ".THREADS." threads... \n");
-	for(my $i = 0; $i < THREADS; $i++) {
+	&beVerbose("[+] Spawning $optThreads threads... \n");
+	for(my $i = 0; $i < $optThreads; $i++) {
 		threads->create(\&threadWork);
 	}
 	while(threads->list()) {
@@ -114,7 +125,7 @@ sub throwError {
 
 sub beVerbose {
 	my $verbose = pop @_;
-	if(VERBOSE) { print("$verbose") }
+	if($optVerbose) { print("$verbose") }
 }
 
 sub parseInput {
@@ -129,4 +140,32 @@ sub parseInput {
 		else { &throwError('Gibbe valid URL') }
 	}
 	else  {&throwError('Gibbe argument') }
+}
+
+sub parseOptions {
+	GetOptions("verbose|v" => \$optVerbose,
+		"threads|t=i" => \$optThreads,
+		"quick|q" => \$optQuick,
+		"help|h" => \$optHelp);
+	
+	#MANUAL OVERRIDE
+	if(!$optVerbose) { $optVerbose = VERBOSE }
+	if(!$optThreads) { $optThreads = THREADS }
+	
+	if($optHelp) { &printHelp() }
+}
+
+sub printHelp {
+	print <<'EOF';
+krautdmp.pl - MrLoom - 03/27/2011
+---------------------------------
+./krautdmp.pl [OPTIONS] kcurl
+
+OPTIONS:
+	--help (-h) 		=> print this help
+	--verbose (-v)		=> use verbose output
+	--quick (-q) 		=> quickmode, only safe thumbnails
+	--threads i (-t i) 	=> number of threads to use
+
+EOF
 }
