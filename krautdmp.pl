@@ -79,8 +79,10 @@ if ($response->code == 200) {
 	for(my $i = 0; $i < THREADS; $i++) {
 		threads->create(\&threadWork);
 	}
-	foreach my $thr (threads->list()) {
-		$thr->join();
+	while(threads->list()) {
+		foreach my $thr (threads->list()) {
+			$thr->join();
+		}
 	}
 }
 else { &throwError('invalid result')}
@@ -101,7 +103,7 @@ sub threadWork {
 		$ua->get(${$work}[0], ":content_file" => ${$work}[1],);
 	}
 	if(scalar @queue > 0) {
-		threads->create(\&threadWork)->join;
+		threads->create(\&threadWork);
 	}
 }
 
