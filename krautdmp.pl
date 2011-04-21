@@ -69,6 +69,7 @@ if ($response->code == 200) {
 	while ($content =~ s/<form action="\/post".*\n<\/form>//s) {}
 	while ($content =~ s/<h2>.*<\/h2>//) {}
 	while ($content =~ s/<h1>(.*)<\/h1>\s*<hr>/<h1>$1<\/h1>\n/s) {}
+	while ($content =~ s/<p>IRC(.*)<\/p>\s*<hr>//s) {}
 	while ($content =~ s/<div style="float: left">.*]\s*<\/div>//s) {}
 	while ($content =~ s/<img src="\/images\/button-paint\.gif" border="0" width="15" height="15">//) {}
 	while ($content =~ s/src="\/images\/balls\/.*\.png"//) {}
@@ -78,6 +79,7 @@ if ($response->code == 200) {
 	while ($content =~ s/\/files\//files\//) {}
 	while ($content =~ s/\/download\/(\d*\..*)\/.*"/files\/$1"/) {}
 	while ($content =~ s/<img src="\/banner\/.*"/<img src="banner\.gif"/) {}
+	while ($content =~ s/^\s+$//m) {}
 	
 	&beVerbose("[+] Writting index...\n");
 	open INDEX, "+>", "${dir}index.html";
