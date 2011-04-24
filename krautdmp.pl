@@ -98,7 +98,7 @@ if ($response->code == 200) {
 		}
 	}
 }
-else { &throwError('invalid result')}
+else { &throwError('invalid result') }
 
 
 sub pushQueue {
@@ -141,7 +141,7 @@ sub parseInput {
 		}
 		else { &throwError('Gibbe valid URL') }
 	}
-	else  {&throwError('Gibbe argument') }
+	else  { &throwError('Gibbe argument') }
 }
 
 sub parseOptions {
