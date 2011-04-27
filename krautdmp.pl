@@ -51,8 +51,16 @@ if ($response->code == 200) {
 			&pushQueue(["http://krautchan.net/thumbnails/$1", "${dir}thumbnails/$1"]);
 		}
 	}
+	
+	&beVerbose("[+] Adding icons to queue...\n");
+	while ($content =~ m/<img.*src="\/images\/(icon-.*\.\w*)"/g) {
+		if(! -e "$dir/thumbnails/$1") {
+			&pushQueue(["http://krautchan.net/images/$1", "${dir}thumbnails/$1"]);
+		}
+	}
+	
 	if(!$optQuick) {
-		&beVerbose("[+] Adding images to queue...\n");
+		&beVerbose("[+] Adding files to queue...\n");
 		while ($content =~ m/<a href="\/files\/(\d*\..*)" target="_blank">/g) {
 			if(! -e "$dir/files/$1") {
 				&pushQueue(["http://krautchan.net/files/$1", "${dir}files/$1"]);
@@ -60,7 +68,7 @@ if ($response->code == 200) {
 		}
 	}
 	else {
-		&beVerbose("[+] Skipping images...\n");
+		&beVerbose("[+] Skipping files...\n");
 	}
 	
 	#FILTER, FILTER TILL WE DIE!!
@@ -73,9 +81,10 @@ if ($response->code == 200) {
 	while ($content =~ s/<div style="float: left">.*]\s*<\/div>//s) {}
 	while ($content =~ s/<img src="\/images\/button-paint\.gif" border="0" width="15" height="15">//) {}
 	while ($content =~ s/src="\/images\/balls\/.*\.png"//) {}
-	while ($content =~ s/src="\/images\/button-.*\.gif"//) {} 
+	while ($content =~ s/src="\/images\/button-.*\.gif"//) {}
 	while ($content =~ s/\/css\/style\.css/style\.css/) {}
 	while ($content =~ s/\/thumbnails\//thumbnails\//) {}
+	while ($content =~ s/\/images\//thumbnails\//) {} 
 	while ($content =~ s/\/files\//files\//) {}
 	while ($content =~ s/\/download\/(\d*\..*)\/.*"/files\/$1"/) {}
 	while ($content =~ s/<img src="\/banner\/.*"/<img src="banner\.gif"/) {}
@@ -118,6 +127,8 @@ sub threadWork {
 	if(scalar @queue > 0) {
 		threads->create(\&threadWork);
 	}
+	undef $work;
+	undef $ua;
 }
 
 sub throwError {
