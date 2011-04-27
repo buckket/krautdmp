@@ -127,8 +127,6 @@ sub threadWork {
 	if(scalar @queue > 0) {
 		threads->create(\&threadWork);
 	}
-	undef $work;
-	undef $ua;
 }
 
 sub throwError {
