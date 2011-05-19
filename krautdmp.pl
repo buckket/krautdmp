@@ -103,6 +103,7 @@ if ($response->code == 200) {
 	while ($content =~ s/^\s+$//m) {}
 	while ($content =~ s/<span class="sage">\[.*\]<\/span>//) {}
 	while ($content =~ s/<div style="position: absolute.*">.*<\/div>//s) {}
+	while ($content =~ s/<input name.*checkbox">//) {}
 	
 	&beVerbose("[+] Writing index...\n");
 	open INDEX, "+>", "${dir}index.html";
