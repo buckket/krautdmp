@@ -38,6 +38,9 @@ if ($response->code == 200) {
 		mkdir $dir;     
 		mkdir "${dir}files";
 		mkdir "${dir}thumbnails";
+		if("${board}" eq "int") {
+			mkdir "${dir}balls";
+		}
 
 		&pushQueue(["http://krautchan.net/css/style.css", "${dir}style.css"]);
 		&pushQueue(["http://krautchan.net/banners/banner-dott.gif", "${dir}banner.gif"]);
@@ -49,6 +52,15 @@ if ($response->code == 200) {
 	while ($content =~ m/<img.*src=\/thumbnails\/(\d*\.\w*)/g) {
 		if(! -e "$dir/thumbnails/$1") {
 			&pushQueue(["http://krautchan.net/thumbnails/$1", "${dir}thumbnails/$1"]);
+		}
+	}
+	
+	if("${board}" eq "int") {
+	&beVerbose("[+] Adding countryballs to queue...\n");
+	while ($content =~ m/<img src="\/images\/balls\/(\w*\.\w*)"/g) {
+		if(! -e "$dir/balls/$1") {
+			&pushQueue(["http://krautchan.net/images/balls/$1", "${dir}balls/$1"]);
+			}
 		}
 	}
 	
@@ -80,7 +92,7 @@ if ($response->code == 200) {
 	while ($content =~ s/<p>IRC(.*)<\/p>\s*<hr>//s) {}
 	while ($content =~ s/<div style="float: left">.*]\s*<\/div>//s) {}
 	while ($content =~ s/<img src="\/images\/button-paint\.gif" border="0" width="15" height="15">//) {}
-	while ($content =~ s/src="\/images\/balls\/.*\.png"//) {}
+	while ($content =~ s/\/images\/balls/balls/) {}
 	while ($content =~ s/src="\/images\/button-.*\.gif"//) {}
 	while ($content =~ s/\/css\/style\.css/style\.css/) {}
 	while ($content =~ s/\/thumbnails\//thumbnails\//) {}
@@ -89,8 +101,10 @@ if ($response->code == 200) {
 	while ($content =~ s/\/download\/(\d*\..*)\/.*"/files\/$1"/) {}
 	while ($content =~ s/<img src="\/banner\/.*"/<img src="banner\.gif"/) {}
 	while ($content =~ s/^\s+$//m) {}
+	while ($content =~ s/<span class="sage">\[.*\]<\/span>//) {}
+	while ($content =~ s/<div style="position: absolute.*">.*<\/div>//s) {}
 	
-	&beVerbose("[+] Writting index...\n");
+	&beVerbose("[+] Writing index...\n");
 	open INDEX, "+>", "${dir}index.html";
 	binmode INDEX, ":utf8";
 	print INDEX $content;
