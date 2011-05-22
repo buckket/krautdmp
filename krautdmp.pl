@@ -157,10 +157,10 @@ sub beVerbose {
 sub parseInput {
 	my $ARGV = pop @_;
 	if(defined($ARGV)) {
-		if($ARGV =~ /http:\/\/krautchan\.net\/(.*)\/thread-(.*)\.html/g) {
+		if($ARGV =~ /https?:\/\/krautchan\.net\/(.*)\/thread-(.*)\.html/g) {
 			return [$1, $2];
 		}
-		elsif($ARGV =~ /http:\/\/krautchan\.net\/board\/(.*)\/thread\/(.*)/g) {
+		elsif($ARGV =~ /https?:\/\/krautchan\.net\/board\/(.*)\/thread\/(.*)/g) {
 			return [$1, $2];
 		}
 		else { &throwError('Gibbe valid URL') }
